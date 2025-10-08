@@ -12,6 +12,7 @@ const Register = () => {
         const role="consumer"
       const res = await registerUser({ email, password, role });
       setMessage(res.data.message);
+
     } catch (err) {
       setMessage(err.response?.data?.message || "Registration failed");
     }
@@ -29,6 +30,7 @@ const Register = () => {
       />
         <select value={role} onChange={(e) => setRole(e.target.value)}>
             <option value="consumer">Consumer</option>
+            <option value="pilot">Pilot</option>
             
         </select>
       <button onClick={handleRegister}>Register</button>

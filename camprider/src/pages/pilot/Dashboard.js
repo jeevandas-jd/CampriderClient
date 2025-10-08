@@ -22,7 +22,7 @@ const PilotDashboard = () => {
     }
   return (
     <div style={{ maxWidth: "600px", margin: "auto", paddingTop: "50px" }}>
-        <Navbar />
+        <Navbar/>
          <h2>Pilot Dashboard</h2>
       <p><strong>Name:</strong> {user.name}</p>
       <p><strong>Email:</strong> {user.email}</p>

@@ -13,7 +13,9 @@ ADMIN_API.interceptors.request.use((config) => {
 });
 
 // pilot apis
-
+export const getAllUsers = () => ADMIN_API.get('admin/users');
+export const deleteUser = (userId) => ADMIN_API.delete(`admin/users/${userId}`);
+export const getUserById = (userId) => ADMIN_API.get(`admin/users/${userId}`);
 //get all pilots
 export const getAllPilots = () => ADMIN_API.get('/pilots');
 
@@ -30,5 +32,5 @@ export const getOnBenchPilots = () => ADMIN_API.get('/pilots/on-bench');
 export const getPilotById = (pilotId) => ADMIN_API.get(`/pilots/${pilotId}`);
 
 // switch bench status
-export const switchBenchStatus = (pilotId) => ADMIN_API.put(`/pilots/accept/${pilotId}`,data);
+export const switchBenchStatus = (pilotId) => ADMIN_API.put(`/pilots/accept/${pilotId}`);
 export default ADMIN_API;

@@ -20,6 +20,14 @@ const Login = () => {
         return;
         
       }
+      else if(user.role==="consumer"){
+        navigate('/consumer/dashboard', { state: { user } });
+        return;
+      }
+      else if(user.role==="admin"){
+        navigate('/admin/dashboard', { state: { user } });
+        return;
+      }
       window.location.href = "/profile";
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

@@ -6,6 +6,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 import PilotDashboard from "./pages/pilot/Dashboard";
+import ConsumerDashboard from "./pages/consumer/consumerDashboard";
+import AdminDashBoard from "./pages/Admin/DashBoard";
 function App() {
   return (
     <Router>
@@ -17,6 +19,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/pilot/dashboard" element={<PilotDashboard />} />
+        <Route path="/consumer/dashboard" element={<ConsumerDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashBoard />} />
       </Routes>
     </Router>
   );

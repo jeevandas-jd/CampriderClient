@@ -19,13 +19,18 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
-        navigate('/login');
+        navigate('/');
     };
 
     const handleDashboard = () => {
         if(role==="pilot"){
             navigate('/pilot/dashboard');
-        }else{
+        }
+        else if(role==="consumer"){
+            navigate('/consumer/dashboard');
+        }
+        
+        else{
             navigate('/profile');
         }
     }
