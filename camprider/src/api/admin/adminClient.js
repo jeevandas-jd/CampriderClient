@@ -1,7 +1,8 @@
 import axios from 'axios';
+import baseURL from '../baseUrl';
 
 const ADMIN_API = axios.create({
-  baseURL: 'http://localhost:5000/api/admin', // backend URL for admin routes
+  baseURL: baseURL, // backend URL for admin routes
 });
 
 // confirm the user is admin by checking the token

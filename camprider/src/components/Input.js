@@ -1,3 +1,5 @@
+
+
 const Input = ({ label, type = "text", value, onChange, placeholder }) => (
   <div style={{ marginBottom: "15px" }}>
     <label>{label}</label>

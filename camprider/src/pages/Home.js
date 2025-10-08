@@ -1,16 +1,21 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/pilot/NavBar";
 import "./Home.css"; // we'll create this CSS next
-
+import { useState } from "react";
 const Home = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
 
   return (
     <div className="home-container">
+      <Navbar />
       <header className="home-header">
         <h1 className="home-title">Camprider</h1>
         <p className="home-tagline">Your reliable ride, every time.</p>
+        {!isAuthenticated && (
         <div className="home-buttons">
+          
           <button className="btn btn-login" onClick={() => navigate("/login")}>
             Login
           </button>
@@ -18,6 +23,8 @@ const Home = () => {
             Register
           </button>
         </div>
+        )}
+
       </header>
       <section className="home-hero">
         <img

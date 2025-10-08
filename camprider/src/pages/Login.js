@@ -1,17 +1,25 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { loginUser } from "../api/auth";
-
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   const handleLogin = async () => {
     try {
       const res = await loginUser({ email, password });
       const { token, user } = res.data;
       localStorage.setItem("token", token);
+
       localStorage.setItem("role", user.role);
+      localStorage.setItem("user", JSON.stringify(user));
+      if(user.role==="pilot"){ 
+          
+        navigate('/pilot/dashboard', { state: { user } });
+        return;
+        
+      }
       window.location.href = "/profile";
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
