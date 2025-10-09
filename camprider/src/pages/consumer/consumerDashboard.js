@@ -1,15 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import Navbar from "../../components/pilot/NavBar";
+import Navbar from "../../components/navbar/NavBar";
 const ConsumerDashboard = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
     
     if (!user) {
         return <div>Loading...</div>;
     }
-    if (user.FormSubmitted === false) {
-        return <div>Please complete your profile information.</div>;
-    }
+//    if (user.FormSubmitted === false) {
+ //       return <div>Please complete your profile information.</div>;
+ //   }
   return (
     
     <div style={{ maxWidth: "600px", margin: "auto", paddingTop: "50px" }}>

@@ -1,4 +1,4 @@
 
-const baseURL = 'http://localhost:5000/api'; // backend URL
+const baseURL = 'https://u61caoh9m2.execute-api.us-east-1.amazonaws.com/dev/api'; // backend URL
 
 export default baseURL;

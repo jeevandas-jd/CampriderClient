@@ -15,3 +15,4 @@ PILOT_API.interceptors.request.use((config) => {
 // pilot apis
 //complete profile
 export const completePilotProfile = (pilotData) => PILOT_API.post('/fillPilotInfo', pilotData);
+export const updateIamLive=()=>PILOT_API.put('/updatePilotStatus');

@@ -3,7 +3,7 @@ import { useLocation,useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import FillInfo from "../../components/pilot/FillInfo";
 import React from "react";
-import Navbar from "../../components/pilot/NavBar";
+import Navbar from "../../components/navbar/NavBar";
 const PilotDashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
