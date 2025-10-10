@@ -1,6 +1,5 @@
 [build]
-  base = "CampriderClient/camprider"
-  publish = "CampriderClient/camprider/build"
+  
   command = "CI=false npm run build"
 
 [[redirects]]
