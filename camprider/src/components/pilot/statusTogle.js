@@ -1,18 +1,26 @@
 
 import { updateIamLive } from "../../api/pilot/pilotClient";
 import { useState } from "react";
+import {io} from "socket.io-client";
+import baseURL from "../../api/baseUrl"
+const socket = io(baseURL);
 
 const StatusToggle = () => {
     const [isLive, setIsLive] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
     const handleToggle = async () => {
         setLoading(true);
         setError("");
         try {
             await updateIamLive();
             setIsLive(!isLive);
+
+            if (socket && socket.connected) {
+                socket.emit("pilot-online",localStorage.getItem("userId"));
+            }else{
+                socket.emit("pilot-offline",localStorage.getItem("userId"));
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Failed to update status");
         } finally {
