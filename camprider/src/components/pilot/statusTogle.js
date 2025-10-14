@@ -3,7 +3,7 @@ import { updateIamLive } from "../../api/pilot/pilotClient";
 import { useState } from "react";
 import {io} from "socket.io-client";
 import baseURL from "../../api/baseUrl"
-const socket = io(baseURL);
+const socket = io("http://localhost:5001");
 
 const StatusToggle = () => {
     const [isLive, setIsLive] = useState(false);
