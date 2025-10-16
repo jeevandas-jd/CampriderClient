@@ -1,9 +1,9 @@
-
-
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import React from "react";
 import StatusToggle from "../pilot/statusTogle";
+import "./style/Navbar.css";
+
 const Navbar = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
     const [role, setRole] = useState(localStorage.getItem("role"));
@@ -24,17 +24,19 @@ const Navbar = () => {
         localStorage.removeItem("role");
         navigate('/');
     };
+
     const handleLocations = () => {
         navigate('/locations');
     };
+
     const handleDashboard = () => {
-        if(role==="pilot"){
+        if(role === "pilot"){
             navigate('/pilot/dashboard');
         }
-        else if(role==="consumer"){
+        else if(role === "consumer"){
             navigate('/consumer/dashboard');
         }
-        else if(role==="admin"){
+        else if(role === "admin"){
             setIsAdmin(true);
             navigate('/profile');
         }
@@ -44,19 +46,103 @@ const Navbar = () => {
     }
 
     return (
-        <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: '#f0f0f0' }}>
-            <div>
-                <button onClick={handleHome}>Home</button>
-                <button onClick={handleDashboard}>Profile</button>
-                <button onClick={handleLocations}>Locations</button>
-                {isAdmin && <button onClick={() => navigate('/admin/dashboard')}>Admin Console</button>}
-                {isPilot && <button onClick={() => navigate('/pilot/dashboard')}>Pilot Dashboard</button>}
-                {isPilot && <StatusToggle/>}
-            </div>
-            <div>
-                <button onClick={handleLogout}>Logout</button>
-            </div>
-        </nav>
+        <>
+            {/* Top Bar for Desktop */}
+            <nav className="navbar-top">
+                <div className="navbar-brand" onClick={handleHome}>
+                    <div className="navbar-logo">
+                        <span className="navbar-logo-icon">🚲</span>
+                    </div>
+                    <span className="navbar-title">CampRider</span>
+                </div>
+
+                <div className="navbar-menu-desktop">
+                    <button className="navbar-btn" onClick={handleHome}>
+                        <span className="navbar-btn-icon">🏠</span>
+                        <span>Home</span>
+                    </button>
+                    
+                    <button className="navbar-btn" onClick={handleDashboard}>
+                        <span className="navbar-btn-icon">👤</span>
+                        <span>Profile</span>
+                    </button>
+                    
+                    <button className="navbar-btn" onClick={handleLocations}>
+                        <span className="navbar-btn-icon">📍</span>
+                        <span>Locations</span>
+                    </button>
+                    
+                    {isAdmin && (
+                        <button className="navbar-btn navbar-admin" onClick={() => navigate('/admin/dashboard')}>
+                            <span className="navbar-btn-icon">🛡️</span>
+                            <span>Admin</span>
+                        </button>
+                    )}
+                    
+                    {isPilot && (
+                        <button className="navbar-btn navbar-pilot" onClick={() => navigate('/pilot/dashboard')}>
+                            <span className="navbar-btn-icon">🚗</span>
+                            <span>Pilot</span>
+                        </button>
+                    )}
+                </div>
+
+                <div className="navbar-actions">
+                    {isPilot && (
+                        <div className="navbar-status-desktop">
+                            <StatusToggle />
+                        </div>
+                    )}
+                    <button className="navbar-btn navbar-logout" onClick={handleLogout}>
+                        <span className="navbar-btn-icon">🚪</span>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </nav>
+
+            {/* Bottom Bar for Mobile */}
+            <nav className="navbar-bottom">
+                <button className="nav-bottom-btn" onClick={handleHome}>
+                    <span className="nav-bottom-icon">🏠</span>
+                    <span className="nav-bottom-text">Home</span>
+                </button>
+                
+                <button className="nav-bottom-btn" onClick={handleDashboard}>
+                    <span className="nav-bottom-icon">👤</span>
+                    <span className="nav-bottom-text">Profile</span>
+                </button>
+                
+                <button className="nav-bottom-btn" onClick={handleLocations}>
+                    <span className="nav-bottom-icon">📍</span>
+                    <span className="nav-bottom-text">Locations</span>
+                </button>
+                
+                {isAdmin && (
+                    <button className="nav-bottom-btn nav-bottom-admin" onClick={() => navigate('/admin/dashboard')}>
+                        <span className="nav-bottom-icon">🛡️</span>
+                        <span className="nav-bottom-text">Admin</span>
+                    </button>
+                )}
+                
+                {isPilot && (
+                    <button className="nav-bottom-btn nav-bottom-pilot" onClick={() => navigate('/pilot/dashboard')}>
+                        <span className="nav-bottom-icon">🚗</span>
+                        <span className="nav-bottom-text">Pilot</span>
+                    </button>
+                )}
+                
+                {isPilot && (
+                    <div className="nav-bottom-status">
+                        <StatusToggle />
+                    </div>
+                )}
+                
+                <button className="nav-bottom-btn nav-bottom-logout" onClick={handleLogout}>
+                    <span className="nav-bottom-icon">🚪</span>
+                    <span className="nav-bottom-text">Logout</span>
+                </button>
+            </nav>
+        </>
     );
 };
 

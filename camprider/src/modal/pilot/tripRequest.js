@@ -85,3 +85,4 @@ const RequestModal = ({ tripId, pickupLocation, dropLocation, fare }) => {
 };
 
 export default RequestModal;
+    
