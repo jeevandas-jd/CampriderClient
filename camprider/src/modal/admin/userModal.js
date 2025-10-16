@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getUserById, deleteUser } from "../../api/admin/adminClient";
+import { X, User, Mail, Shield, Trash2, AlertCircle, Loader } from "lucide-react";
+import "./style/UserModal.css";
 
 const UserModal = ({ userId, onClose, onDeleted }) => {
   const [user, setUser] = useState(null);
@@ -7,150 +9,219 @@ const UserModal = ({ userId, onClose, onDeleted }) => {
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // 1. FIX: Removed nested useEffect and fixed state initialization logic
   useEffect(() => {
     if (!userId) {
-        // If userId is falsy (e.g., null or 0), reset state and stop loading
-        setUser(null);
-        setLoading(false);
-        return;
+      setUser(null);
+      setLoading(false);
+      return;
     }
 
-    // Reset state for the new user fetch
     setLoading(true);
     setError(null);
-    setUser(null); // Clear previous user data
+    setUser(null);
 
-    const FetchUser = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await getUserById(userId); // API call to /users/:id
+        const res = await getUserById(userId);
         setUser(res.data);
-        console.log("user seted 1",user);
       } catch (err) {
         console.error("Error fetching user:", err);
-        setError(err.response?.data?.message || "Failed to fetch user");
+        setError(err.response?.data?.message || "Failed to fetch user details");
       } finally {
         setLoading(false);
       }
     };
 
-    FetchUser();
-    // Dependency array ensures this runs only when userId changes
+    fetchUser();
   }, [userId]);
-  useEffect(() => {
-    if (user) {
-      console.log("user seted", user);
-    }
-  }, [user]);
-  // 2. FIX: Remove this console.log block (it was nested incorrectly before)
-  // If you need to log the user state after it changes, use this:
-  // useEffect(() => {
-  //     if (user) {
-  //         console.log("User state updated:", user);
-  //     }
-  // }, [user]);
-
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this user? This action is irreversible.")) return;
+    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone and will permanently remove all user data.")) return;
 
     try {
       setDeleting(true);
-      await deleteUser(userId); // API call to delete user
-      // No alert needed, as per UX best practices, rely on parent component update
-      onDeleted(userId); // parent can remove user from list
+      await deleteUser(userId);
+      onDeleted(userId);
       onClose();
     } catch (err) {
       console.error("Delete failed:", err);
-      // Use a more subtle notification in a real app
       alert("Failed to delete user: " + (err.response?.data?.message || "Unknown error"));
     } finally {
       setDeleting(false);
     }
   };
 
-  // 3. FIX: Check if the modal should be open (based on userId)
+  const getRoleBadge = (role) => {
+    const roleConfig = {
+      consumer: { label: "Consumer", color: "#059669", bgColor: "#d1fae5" },
+      pilot: { label: "Pilot", color: "#3b82f6", bgColor: "#dbeafe" },
+      admin: { label: "Administrator", color: "#f59e0b", bgColor: "#fef3c7" }
+    };
+    
+    return roleConfig[role] || { label: role, color: "#6b7280", bgColor: "#f3f4f6" };
+  };
+
   if (!userId) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-      }}
-      // Optional: Close modal on backdrop click
-      onClick={onClose} 
-    >
-      <div
-        style={{
-          backgroundColor: "red",
-          padding: "1rem",
-          borderRadius: "6px",
-          minWidth: "300px",
-          maxWidth: "90%",
-          
-        }}
-        // Stop click propagation so clicking inside the modal doesn't close it
-        onClick={(e) => e.stopPropagation()} 
-      >
-        <h2>User Details</h2>
+    <div className="user-modal-overlay" onClick={onClose}>
+      <div className="user-modal-content" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header">
+          <div className="header-title">
+            <User size={24} />
+            <h2>User Details</h2>
+          </div>
+          <button className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
 
-        {loading && <p>Loading...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* Loading State */}
+        {loading && (
+          <div className="modal-loading">
+            <Loader className="loading-spinner" size={32} />
+            <p>Loading user details...</p>
+          </div>
+        )}
 
-        {/* Show user data only if loading is false and user is set */}
-        {!loading && user && (
-          <div>
-            <p>
-              <strong>Name:</strong> 
-            </p>
-            <p>
-              <strong>Email:</strong> {user.email}
-            </p>
-            <p>
-              <strong>Role:</strong> 
-            </p>
+        {/* Error State */}
+        {error && !loading && (
+          <div className="modal-error">
+            <AlertCircle size={32} />
+            <h3>Error Loading User</h3>
+            <p>{error}</p>
+            <button className="retry-btn" onClick={() => window.location.reload()}>
+              Try Again
+            </button>
+          </div>
+        )}
 
-            <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-              <button
+        {/* User Details */}
+        {user && !loading && (
+          <div className="user-details">
+            {/* User Profile */}
+            <div className="user-profile">
+              <div className="user-avatar">
+                {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+              </div>
+              <div className="user-info">
+                <h3 className="user-name">{user.name || "No Name Provided"}</h3>
+                <div className="user-email">
+                  <Mail size={16} />
+                  {user.email}
+                </div>
+              </div>
+            </div>
+
+            {/* User Information */}
+            <div className="detail-section">
+              <h3 className="section-title">Account Information</h3>
+              <div className="detail-grid">
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <Shield size={16} />
+                  </div>
+                  <div className="detail-content">
+                    <label>Account Role</label>
+                    <div 
+                      className="role-badge"
+                      style={{ 
+                        color: getRoleBadge(user.role).color, 
+                        backgroundColor: getRoleBadge(user.role).bgColor 
+                      }}
+                    >
+                      {getRoleBadge(user.role).label}
+                    </div>
+                  </div>
+                </div>
+
+                {user.department && (
+                  <div className="detail-item">
+                    <div className="detail-icon">
+                      <User size={16} />
+                    </div>
+                    <div className="detail-content">
+                      <label>Department</label>
+                      <p>{user.department}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.studentID && (
+                  <div className="detail-item">
+                    <div className="detail-icon">
+                      <Mail size={16} />
+                    </div>
+                    <div className="detail-content">
+                      <label>Student ID</label>
+                      <p>{user.studentID}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.vehicleType && (
+                  <div className="detail-item">
+                    <div className="detail-icon">
+                      <Shield size={16} />
+                    </div>
+                    <div className="detail-content">
+                      <label>Vehicle Type</label>
+                      <p>{user.vehicleType}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Account Status */}
+            <div className="detail-section">
+              <h3 className="section-title">Account Status</h3>
+              <div className="status-info">
+                <div className="status-item">
+                  <label>Registration Date</label>
+                  <p>{new Date(user.createdAt || Date.now()).toLocaleDateString()}</p>
+                </div>
+                <div className="status-item">
+                  <label>Last Updated</label>
+                  <p>{new Date(user.updatedAt || Date.now()).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="modal-actions">
+              <button 
+                className="action-btn delete-btn"
                 onClick={handleDelete}
                 disabled={deleting}
-                style={{
-                  backgroundColor: "crimson",
-                  color: "white",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: deleting ? "not-allowed" : "pointer",
-                }}
               >
-                {deleting ? "Deleting..." : "Delete User"}
+                {deleting ? (
+                  <div className="loading-spinner-small"></div>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Delete User
+                  </>
+                )}
               </button>
-
-              <button
+              <button 
+                className="action-btn close-action-btn"
                 onClick={onClose}
-                style={{
-                  backgroundColor: "gray",
-                  color: "white",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
               >
                 Close
               </button>
             </div>
           </div>
         )}
-        
-        {/* Show this if not loading, no error, and no user (e.g., deleted or not found) */}
-        {!loading && !error && !user && userId && (
-             <p>User details are not available or the user does not exist.</p>
+
+        {/* No Data State */}
+        {!user && !loading && !error && (
+          <div className="modal-empty">
+            <User size={48} />
+            <h3>No User Data</h3>
+            <p>User information is not available or the user does not exist.</p>
+          </div>
         )}
       </div>
     </div>

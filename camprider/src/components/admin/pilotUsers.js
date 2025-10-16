@@ -1,27 +1,27 @@
+import React, { useEffect, useState, useMemo } from "react";
 import { getAllPilots } from "../../api/admin/adminClient";
 import PilotModal from "../../modal/admin/pilotModal";
-import { useEffect, useState, useMemo } from "react";
 import BenchManager from "./benchManager";
+import { Bike, Shield, CheckCircle, XCircle, Filter, Eye, Settings, Loader } from "lucide-react";
+import "./style/PilotUsers.css";
+
 const PilotUsers = () => {
   const [pilots, setPilots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [verificationButton, setVerificationButton] = useState(false);
   const [selectedPilotId, setSelectedPilotId] = useState(null);
-  const [Ids,setIDs]=useState([]);
-  
-  // New state for filter: 'all', 'approved', or 'not_approved'
-  const [filterStatus, setFilterStatus] = useState('all'); 
+  const [Ids, setIDs] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showBenchManager, setShowBenchManager] = useState(false);
 
   useEffect(() => {
     const fetchPilots = async () => {
       try {
         const response = await getAllPilots();
-        for (let i = 0; i < response.data.length; i++) {
-          Ids.push(response.data[i]._id);
-        }
-        setIDs(Ids);
-        console.log("pilot Ids",Ids);
+        const pilotIds = response.data.map(pilot => pilot._id);
+        setIDs(pilotIds);
+        console.log("pilot Ids", pilotIds);
         setPilots(response.data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch pilots");
@@ -35,104 +35,194 @@ const PilotUsers = () => {
   const handleVerificationToggle = () => {
     setVerificationButton(!verificationButton);
   };
-  
+
   const handleUserDeleted = (id) => {
     setPilots((prev) => prev.filter((u) => u._id !== id));
   };
-  const handleBenchSettings=()=>{
-    <BenchManager userIDs={Ids}/>
-  }
-  // Use useMemo to create the filtered list efficiently
+
+  const handleBenchSettings = () => {
+    setShowBenchManager(true);
+  };
+
   const filteredPilots = useMemo(() => {
     if (filterStatus === 'all') {
       return pilots;
     }
     
-    // Convert filterStatus string to a boolean for comparison
     const isApprovedFilter = filterStatus === 'approved';
-
     return pilots.filter(pilot => pilot.isApproved === isApprovedFilter);
-  }, [pilots, filterStatus]); // Recalculate only when pilots or filterStatus changes
+  }, [pilots, filterStatus]);
 
-  if (loading) return <div>Loading pilots...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="pilots-loading">
+        <Loader className="loading-spinner" size={32} />
+        <p>Loading pilots...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pilots-error">
+        <div className="error-icon">⚠️</div>
+        <h3>Error Loading Pilots</h3>
+        <p>{error}</p>
+        <button 
+          className="retry-btn"
+          onClick={() => window.location.reload()}
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2>All Pilots ({filteredPilots.length} displayed)</h2>
-      
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", alignItems: "center" }}>
+    <div className="pilots-container">
+      {/* Header */}
+      <div className="pilots-header">
+        <div className="header-content">
+          <Bike size={24} />
+          <h2>Pilot Management</h2>
+          <span className="pilots-count">{filteredPilots.length} pilots</span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="controls-section">
+        <div className="controls-left">
+          <button 
+            onClick={handleVerificationToggle}
+            className={`control-btn ${verificationButton ? 'active' : ''}`}
+          >
+            <Shield size={16} />
+            {verificationButton ? "Hide Verification" : "Show Verification"}
+          </button>
           
-        {/* Verification Toggle Button */}
-        <button onClick={handleVerificationToggle}>
-            {verificationButton ? "Hide Verification Status" : "Show Verification Status"}
-        </button>
-        <button >bench settings</button>
-        {/* Filter Box for isApproved */}
-        <label htmlFor="approved-filter" style={{ fontWeight: "bold" }}>Filter by Approval:</label>
-        <select 
+          <button 
+            onClick={handleBenchSettings}
+            className="control-btn secondary"
+          >
+            <Settings size={16} />
+            Bench Settings
+          </button>
+        </div>
+
+        <div className="filter-control">
+          <Filter size={16} />
+          <label htmlFor="approved-filter">Filter by Approval:</label>
+          <select 
             id="approved-filter"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            style={{ padding: "0.4rem", borderRadius: "4px", border: "1px solid #ccc" }}
-        >
+            className="filter-select"
+          >
             <option value="all">All Pilots</option>
-            <option value="approved">Approved Pilots</option>
-            <option value="not_approved">Not Approved Pilots</option>
-        </select>
-
+            <option value="approved">Approved Only</option>
+            <option value="not_approved">Pending Approval</option>
+          </select>
+        </div>
       </div>
-      
-      {verificationButton && <p style={{ color: "#FF9900", marginTop: 0 }}>* Verification status is shown next to each pilot.</p>}
-      
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {filteredPilots.length === 0 ? (
-            <li>No pilots match the current filter criteria.</li>
-        ) : (
-            filteredPilots.map((pilot) => (
-                <li
-                    key={pilot._id}
-                    style={{
-                        padding: "0.5rem 0",
-                        borderBottom: "1px solid #ccc",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
-                    <span>
-                        {pilot.name} - {pilot.email} - <strong>{pilot.role}</strong>
-                        <span style={{ marginLeft: "0.5rem", fontWeight: "bold", color: pilot.isApproved ? "green" : "red" }}>
-                            ({pilot.isApproved ? "Approved" : "Not Approved"})
-                        </span>
-                        
-                        {verificationButton && (
-                            <button
-                                onClick={() => setSelectedPilotId(pilot._id)}
-                                style={{
-                                    marginLeft: "1rem",
-                                    padding: "0.25rem 0.5rem",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    cursor: "pointer",
-                                    backgroundColor: "#28a745",
-                                    color: "white",
-                                }}
-                            >
-                                Verify Pilot
-                            </button>
-                        )}
-                    </span>
-                </li>
-            ))
-        )}
-      </ul>
-      
-        {selectedPilotId && (
+
+      {verificationButton && (
+        <div className="verification-notice">
+          <Shield size={16} />
+          <span>Verification status is shown for each pilot</span>
+        </div>
+      )}
+
+      {/* Pilots List */}
+      {filteredPilots.length === 0 ? (
+        <div className="empty-state">
+          <Bike size={48} className="empty-icon" />
+          <h3>No Pilots Found</h3>
+          <p>No pilots match the current filter criteria.</p>
+        </div>
+      ) : (
+        <div className="pilots-table-container">
+          <div className="pilots-table">
+            <div className="table-header">
+              <div className="table-row">
+                <div className="table-cell pilot-info">Pilot Information</div>
+                <div className="table-cell status">Status</div>
+                <div className="table-cell actions">Actions</div>
+              </div>
+            </div>
+            
+            <div className="table-body">
+              {filteredPilots.map((pilot) => (
+                <div key={pilot._id} className="table-row pilot-row">
+                  <div className="table-cell pilot-info">
+                    <div className="pilot-avatar">
+                      {pilot.name ? pilot.name.charAt(0).toUpperCase() : "P"}
+                    </div>
+                    <div className="pilot-details">
+                      <div className="pilot-name">{pilot.name || "No Name"}</div>
+                      <div className="pilot-email">{pilot.email}</div>
+                      {pilot.vehicleType && (
+                        <div className="pilot-vehicle">{pilot.vehicleType}</div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="table-cell status">
+                    <div className={`verification-badge ${pilot.isApproved ? 'approved' : 'pending'}`}>
+                      {pilot.isApproved ? (
+                        <>
+                          <CheckCircle size={14} />
+                          Approved
+                        </>
+                      ) : (
+                        <>
+                          <XCircle size={14} />
+                          Pending
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="table-cell actions">
+                    <button
+                      onClick={() => setSelectedPilotId(pilot._id)}
+                      className="action-btn view-btn"
+                      title="View Pilot Details"
+                    >
+                      <Eye size={16} />
+                      <span>View</span>
+                    </button>
+                    
+                    {verificationButton && !pilot.isApproved && (
+                      <button
+                        onClick={() => setSelectedPilotId(pilot._id)}
+                        className="action-btn verify-btn"
+                        title="Verify Pilot"
+                      >
+                        <Shield size={16} />
+                        <span>Verify</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      {selectedPilotId && (
         <PilotModal
           pilotId={selectedPilotId}
           onClose={() => setSelectedPilotId(null)}
           onDeleted={handleUserDeleted}
+        />
+      )}
+
+      {showBenchManager && (
+        <BenchManager 
+          userIDs={Ids}
+          onClose={() => setShowBenchManager(false)}
         />
       )}
     </div>

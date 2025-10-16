@@ -1,162 +1,226 @@
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/navbar/NavBar";
 import GetUsers from "../../components/admin/getUsers";
 import PilotUsers from "../../components/admin/pilotUsers";
 import AddLocations from "../../components/admin/addLocations";
+import { Users, Bike, MapPin, Settings, Shield, BarChart3, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import "./style/AdminDashboard.css";
 
-// Basic CSS for a console-like look (ideally, this would be in a separate CSS/Styled-Components file)
-const consoleStyles = {
-    // General body/main container styles
-    mainContainer: {
-        display: "flex",
-        minHeight: "100vh", // Full height
-        backgroundColor: "#232F3E", // Dark background, similar to AWS/Console
-        color: "#FFFFFF", // Light text color
-    },
-    // Navigation/Sidebar styles
-    sidebar: {
-        width: "250px", // Fixed width for the menu
-        backgroundColor: "#1D2731", // Slightly darker sidebar
-        padding: "20px 15px",
-        borderRight: "1px solid #3A475C", // Separator line
-        boxShadow: "2px 0 5px rgba(0, 0, 0, 0.5)",
-    },
-    // Main Content Area styles
-    contentArea: {
-        flexGrow: 1, // Takes up the remaining space
-        padding: "20px 30px",
-        overflowY: "auto", // Scroll if content is too long
-    },
-    // Heading styles
-    header: {
-        color: "#FF9900", // Highlight color for titles (e.g., AWS orange)
-        borderBottom: "1px solid #3A475C",
-        paddingBottom: "10px",
-        marginBottom: "20px",
-    },
-    // User info box
-    userInfoBox: {
-        backgroundColor: "#3A475C",
-        padding: "15px",
-        borderRadius: "4px",
-        marginBottom: "30px",
-        borderLeft: "5px solid #FF9900",
-    },
-    // Tool/Section styles
-    toolSection: {
-        backgroundColor: "#1D2731", // Dark background for tool containers
-        padding: "20px",
-        borderRadius: "4px",
-        marginBottom: "20px",
-        border: "1px solid #3A475C",
-    }
-};
-
-const AdminDashBoard = () => {
+const AdminDashboard = () => {
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem("user");
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
-    // State for active tool/menu selection (for a true console experience)
     const [activeTool, setActiveTool] = useState("UserOverview");
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    // Menu options for the sidebar
     const menuItems = [
-        { id: "UserOverview", name: "User Overview" },
-        { id: "ManageAllUsers", name: "Manage All Users (GetUsers)" },
-        { id: "PilotUserMgmt", name: "Pilot User Management (PilotUsers)" },
-        { id: "AddLocations", name: "Add Locations"},
-
-        // Add more tools/sections here
+        { id: "UserOverview", name: "Dashboard Overview", icon: BarChart3 },
+        { id: "ManageAllUsers", name: "Manage All Users", icon: Users },
+        { id: "PilotUserMgmt", name: "Pilot Management", icon: Bike },
+        { id: "AddLocations", name: "Location Management", icon: MapPin },
     ];
 
-    // Function to render the active component based on the menu selection
     const renderToolComponent = () => {
         switch (activeTool) {
             case "ManageAllUsers":
                 return (
-                    <div style={consoleStyles.toolSection}>
-                        <h3 style={{ color: "#FF9900" }}>User Management Console</h3>
+                    <div className="admin-tool-section">
+                        <div className="tool-header">
+                            <Users size={24} />
+                            <h3>User Management</h3>
+                        </div>
                         <GetUsers />
                     </div>
                 );
             case "AddLocations":
                 return (
-                    <div style={consoleStyles.toolSection}>
-                        <h3 style={{ color: "#FF9900" }}>Add New Locations</h3>
+                    <div className="admin-tool-section">
+                        <div className="tool-header">
+                            <MapPin size={24} />
+                            <h3>Location Management</h3>
+                        </div>
                         <AddLocations />
                     </div>
                 );
             case "PilotUserMgmt":
                 return (
-                    <div style={consoleStyles.toolSection}>
-                        <h3 style={{ color: "#FF9900" }}>Pilot Program Users</h3>
+                    <div className="admin-tool-section">
+                        <div className="tool-header">
+                            <Bike size={24} />
+                            <h3>Pilot Management</h3>
+                        </div>
                         <PilotUsers />
                     </div>
                 );
             case "UserOverview":
             default:
                 return (
-                    <div style={consoleStyles.userInfoBox}>
-                        <h3 style={{ color: "#FFFFFF", marginTop: 0 }}>Account Overview</h3>
-                        <p><strong>Name:</strong> {user.name}</p>
-                        <p><strong>Email:</strong> {user.email}</p>
-                        <p><strong>Role:</strong> <span style={{ color: "#FF9900", fontWeight: "bold" }}>{user.role}</span></p>
-                        <p style={{ color: "#A0A0A0", fontSize: "0.9em" }}>
-                            Status: <span style={{ color: "lightgreen" }}>ACTIVE</span> | Region: GLOBAL
-                        </p>
+                    <div className="admin-overview">
+                        <div className="overview-header">
+                            <h2>Dashboard Overview</h2>
+                            <p>Welcome to your CampRider Admin Console</p>
+                        </div>
+                        
+                        <div className="stats-grid">
+                            <div className="stat-card">
+                                <div className="stat-icon users">
+                                    <Users size={24} />
+                                </div>
+                                <div className="stat-content">
+                                    <h3>1,247</h3>
+                                    <p>Total Users</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon pilots">
+                                    <Bike size={24} />
+                                </div>
+                                <div className="stat-content">
+                                    <h3>89</h3>
+                                    <p>Active Pilots</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon locations">
+                                    <MapPin size={24} />
+                                </div>
+                                <div className="stat-content">
+                                    <h3>24</h3>
+                                    <p>Locations</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon rides">
+                                    <BarChart3 size={24} />
+                                </div>
+                                <div className="stat-content">
+                                    <h3>5,892</h3>
+                                    <p>Total Rides</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="admin-profile-card">
+                            <div className="profile-header">
+                                <Shield size={24} />
+                                <h3>Admin Profile</h3>
+                            </div>
+                            <div className="profile-info">
+                                <div className="info-item">
+                                    <label>Name</label>
+                                    <p>{user.name}</p>
+                                </div>
+                                <div className="info-item">
+                                    <label>Email</label>
+                                    <p>{user.email}</p>
+                                </div>
+                                <div className="info-item">
+                                    <label>Role</label>
+                                    <div className="role-badge admin">Administrator</div>
+                                </div>
+                                <div className="info-item">
+                                    <label>Status</label>
+                                    <div className="status-badge active">Active</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 );
         }
     };
 
     if (!user) {
-        return <div style={{ color: "white", backgroundColor: "#232F3E", minHeight: "100vh", padding: "20px" }}>Loading... or Please Log In.</div>;
+        return (
+            <div className="admin-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading Admin Dashboard...</p>
+            </div>
+        );
     }
 
     return (
-        <div>
-            {/* The Navbar can stay, often used for top-level account/search/logout */}
-            <Navbar /> 
-
-            <div style={consoleStyles.mainContainer}>
-                {/* 1. SIDEBAR NAVIGATION */}
-                <div style={consoleStyles.sidebar}>
-                    <h2 style={consoleStyles.header}>Services</h2>
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                        {menuItems.map((item) => (
-                            <li 
-                                key={item.id}
-                                onClick={() => setActiveTool(item.id)}
-                                style={{
-                                    padding: "10px",
-                                    marginBottom: "5px",
-                                    borderRadius: "3px",
-                                    cursor: "pointer",
-                                    backgroundColor: activeTool === item.id ? "#3A475C" : "transparent", // Highlight active item
-                                    color: activeTool === item.id ? "#FF9900" : "#E0E0E0", // Highlight text
-                                    fontWeight: activeTool === item.id ? "bold" : "normal",
-                                    transition: "background-color 0.2s"
-                                }}
-                            >
-                                {item.name}
-                            </li>
-                        ))}
-                    </ul>
+        <div className="admin-dashboard">
+            <Navbar />
+            
+            <div className="admin-container">
+                {/* Sidebar Navigation */}
+                <div className={`admin-sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+                    <div className="sidebar-header">
+                        <div className="admin-logo">
+                            <Shield size={28} />
+                        </div>
+                        {!sidebarCollapsed && <h2>Admin Console</h2>}
+                        <button 
+                            className="sidebar-toggle"
+                            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        >
+                            {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                        </button>
+                    </div>
+                    
+                    <nav className="sidebar-nav">
+                        {menuItems.map((item) => {
+                            const IconComponent = item.icon;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveTool(item.id)}
+                                    className={`nav-item ${activeTool === item.id ? 'nav-item-active' : ''}`}
+                                    title={item.name}
+                                >
+                                    <IconComponent size={20} />
+                                    {!sidebarCollapsed && <span>{item.name}</span>}
+                                </button>
+                            );
+                        })}
+                    </nav>
+                    
+                    {!sidebarCollapsed && (
+                        <div className="sidebar-footer">
+                            <div className="admin-quick-info">
+                                <div className="admin-avatar">
+                                    {user.name ? user.name.charAt(0).toUpperCase() : "A"}
+                                </div>
+                                <div className="admin-details">
+                                    <p className="admin-name">{user.name}</p>
+                                    <p className="admin-role">Administrator</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* 2. MAIN CONTENT AREA */}
-                <div style={consoleStyles.contentArea}>
-                    <h1 style={consoleStyles.header}>Admin Console - {activeTool.replace(/([A-Z])/g, ' $1').trim()}</h1>
-                    
-                    {/* The actively selected tool/view is rendered here */}
-                    {renderToolComponent()}
+                {/* Main Content Area */}
+                <div className={`admin-content ${sidebarCollapsed ? 'content-expanded' : ''}`}>
+                    <header className="content-header">
+                        <div className="header-left">
+                            <button 
+                                className="mobile-menu-toggle"
+                                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                            >
+                                <Menu size={24} />
+                            </button>
+                            <h1>
+                                {menuItems.find(item => item.id === activeTool)?.name || "Dashboard"}
+                            </h1>
+                        </div>
+                        <div className="header-actions">
+                            <button className="header-btn">
+                                <Settings size={20} />
+                                <span>Settings</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div className="content-area">
+                        {renderToolComponent()}
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default AdminDashBoard;
+export default AdminDashboard;

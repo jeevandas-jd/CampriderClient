@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { requestTrip } from "../../api/consumer/consumerClient";
 import { getAllLocations } from "../../api/locations/locationAxios";
+import { X, MapPin, Navigation, DollarSign, Car, AlertCircle, CheckCircle } from "lucide-react";
+import "./style/TripModal.css";
 
 const TripModal = ({ onClose }) => {
   const FIXED_FARE = 10; // fixed fare among locations
 
-  const [pickupLocation, setPickupLocation] = useState("");
-  const [dropoffLocation, setDropoffLocation] = useState("");
+  const [formData, setFormData] = useState({
+    pickupLocation: "",
+    dropoffLocation: ""
+  });
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [passengerID, setPassengerID] = localStorage.getItem("userId");
 
   // Fetch all locations on mount
   useEffect(() => {
@@ -26,111 +29,170 @@ const TripModal = ({ onClose }) => {
     fetchLocations();
   }, []);
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
 
-    if (!pickupLocation || !dropoffLocation) {
+    if (!formData.pickupLocation || !formData.dropoffLocation) {
       setError("Please select both pickup and drop-off locations");
       setLoading(false);
       return;
     }
 
+    if (formData.pickupLocation === formData.dropoffLocation) {
+      setError("Pickup and drop-off locations cannot be the same");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await requestTrip({ pickupLocation,dropLocation: dropoffLocation, fare: FIXED_FARE});
-      setSuccess("Trip requested successfully!");
-      setPickupLocation("");
-      setDropoffLocation("");
+      await requestTrip({ 
+        pickupLocation: formData.pickupLocation, 
+        dropLocation: formData.dropoffLocation, 
+        fare: FIXED_FARE 
+      });
+      setSuccess("Trip requested successfully! Finding a pilot...");
+      
+      // Reset form and close modal after success
+      setTimeout(() => {
+        setFormData({ pickupLocation: "", dropoffLocation: "" });
+        onClose();
+      }, 2000);
+      
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to request trip");
+      setError(err.response?.data?.message || "Failed to request trip. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const isFormValid = () => {
+    return formData.pickupLocation && formData.dropoffLocation && formData.pickupLocation !== formData.dropoffLocation;
+  };
+
   return (
-    <div style={{
-      position: "fixed",
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        width: "400px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-      }}>
-        <h2>Request a Trip</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Pickup Location:</label>
-            <select
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            >
-              <option value="" disabled>Select pickup location</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc.department}>{loc.department}</option>
-              ))}
-            </select>
+    <div className="trip-modal-overlay" onClick={onClose}>
+      <div className="trip-modal-content" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header">
+          <div className="header-title">
+            <Car size={24} />
+            <h2>Request a Trip</h2>
+          </div>
+          <button className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="trip-form">
+          {/* Messages */}
+          {error && (
+            <div className="message error">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          )}
+          {success && (
+            <div className="message success">
+              <CheckCircle size={16} />
+              <span>{success}</span>
+            </div>
+          )}
+
+          {/* Location Selection */}
+          <div className="location-section">
+            <div className="form-group">
+              <label htmlFor="pickupLocation" className="form-label">
+                <MapPin size={16} />
+                Pickup Location
+              </label>
+              <select
+                id="pickupLocation"
+                name="pickupLocation"
+                value={formData.pickupLocation}
+                onChange={handleChange}
+                className="form-input"
+                required
+                disabled={loading}
+              >
+                <option value="">Select pickup location</option>
+                {locations.map((loc) => (
+                  <option key={loc._id} value={loc.department}>
+                    {loc.department}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="location-arrow">↓</div>
+
+            <div className="form-group">
+              <label htmlFor="dropoffLocation" className="form-label">
+                <Navigation size={16} />
+                Drop-off Location
+              </label>
+              <select
+                id="dropoffLocation"
+                name="dropoffLocation"
+                value={formData.dropoffLocation}
+                onChange={handleChange}
+                className="form-input"
+                required
+                disabled={loading}
+              >
+                <option value="">Select drop-off location</option>
+                {locations.map((loc) => (
+                  <option key={loc._id} value={loc.department}>
+                    {loc.department}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label>Drop-off Location:</label>
-            <select
-              value={dropoffLocation}
-              onChange={(e) => setDropoffLocation(e.target.value)}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            >
-              <option value="" disabled>Select drop-off location</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc.department}>{loc.department}</option>
-              ))}
-            </select>
+          {/* Fare Information */}
+          <div className="fare-section">
+            <div className="fare-icon">
+              <DollarSign size={20} />
+            </div>
+            <div className="fare-content">
+              <label>Trip Fare</label>
+              <p className="fare-amount">₹{FIXED_FARE}</p>
+              <p className="fare-description">Fixed fare for all locations</p>
+            </div>
           </div>
 
-          <p>Fixed fare among locations: ${FIXED_FARE}</p>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {success && <p style={{ color: "green" }}>{success}</p>}
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: loading ? "not-allowed" : "pointer"
-              }}
+          {/* Action Buttons */}
+          <div className="modal-actions">
+            <button 
+              type="submit" 
+              className="action-btn primary-btn"
+              disabled={loading || !isFormValid()}
             >
-              {loading ? "Requesting..." : "Request Trip"}
+              {loading ? (
+                <div className="loading-spinner-small"></div>
+              ) : (
+                <>
+                  <Car size={18} />
+                  Request Trip
+                </>
+              )}
             </button>
-
-            <button
-              type="button"
+            
+            <button 
+              type="button" 
+              className="action-btn secondary-btn"
               onClick={onClose}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer"
-              }}
+              disabled={loading}
             >
               Cancel
             </button>

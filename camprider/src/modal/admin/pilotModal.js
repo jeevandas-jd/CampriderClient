@@ -1,115 +1,238 @@
-import { getPilotById,verifyPilot} from "../../api/admin/adminClient";
+import React, { useEffect, useState } from "react";
+import { getPilotById, verifyPilot } from "../../api/admin/adminClient";
+import { X, User, Mail, IdCard, Shield, CheckCircle, AlertCircle, Clock, Car, Hash, Building } from "lucide-react";
+import "./style/PilotModal.css";
 
-import { useEffect, useState } from "react";
-
-
-const PilotModal = ({ pilotId,veifyID, onClose }) => {
+const PilotModal = ({ pilotId, onClose, onDeleted }) => {
     const [pilot, setPilot] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [verifying, setVerifying] = useState(false);
 
     useEffect(() => {
         if (!pilotId) {
-            console.log("pilotId is null");
-            // If pilotId is falsy (e.g., null or 0), reset state and stop loading
             setPilot(null);
             setLoading(false);
             return;
         }
 
-        // Reset state for the new pilot fetch
         setLoading(true);
         setError(null);
-        setPilot(null); // Clear previous pilot data
+        setPilot(null);
 
-        const FetchPilot = async () => {
+        const fetchPilot = async () => {
             try {
                 const res = await getPilotById(pilotId);
-                console.log(res.data) // API call to /pilots/:id
                 setPilot(res.data);
-                console.log("pilot seted 1", pilot);
             } catch (err) {
                 console.error("Error fetching pilot:", err);
-                setError(err.response?.data?.message || "Failed to fetch pilot");
+                setError(err.response?.data?.message || "Failed to fetch pilot details");
             } finally {
                 setLoading(false);
             }
         };
-        FetchPilot();
-        // Dependency array ensures this runs only when pilotId changes
+        
+        fetchPilot();
     }, [pilotId]);
-    
-    useEffect(() => {
-        if (pilot) {
-            console.log("pilot seted", pilot);
-        }
-    }, [pilot]);
 
     const handleVerify = async () => {
-        if (!window.confirm("Are you sure you want to verify this pilot? This action is irreversible.")) return;
+        if (!window.confirm("Are you sure you want to verify this pilot? This action cannot be undone.")) return;
 
+        setVerifying(true);
         try {
-            await verifyPilot(pilotId); // API call to verify pilot
-            alert("Pilot verified successfully.");
-            onClose(); // Close the modal after verification
+            await verifyPilot(pilotId);
+            alert("Pilot verified successfully!");
+            onClose();
+            if (onDeleted) onDeleted(pilotId);
         } catch (err) {
             console.error("Error verifying pilot:", err);
             alert(err.response?.data?.message || "Failed to verify pilot");
+        } finally {
+            setVerifying(false);
         }
     };
 
+    const getStatusBadge = (isVerified) => {
+        return isVerified ? (
+            <div className="status-badge verified">
+                <CheckCircle size={14} />
+                Verified
+            </div>
+        ) : (
+            <div className="status-badge pending">
+                <Clock size={14} />
+                Pending Verification
+            </div>
+        );
+    };
+
     return (
-        <div 
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 1000,
-            }}
-            onClick={onClose} // Close modal when clicking outside the content
-        >
-            <div 
-                style={{
-                    backgroundColor:"rgba(0, 0, 0, 0.5)",
-                    padding: "20px",
-                    borderRadius: "6px",
-                    minWidth: "300px",
-                    maxWidth: "90%",
-                    textAlign: "center"
-                }}
-                // Stop click propagation so clicking inside the modal doesn't close it
-                onClick={(e) => e.stopPropagation()} 
-            >
-                {loading ? (
-                    <p>Loading pilot details...</p>
-                ) : error ? (
-                    <p style={{ color: "red" }}>{error}</p>
-                ) : pilot ? (
-                    <>
+        <div className="pilot-modal-overlay" onClick={onClose}>
+            <div className="pilot-modal-content" onClick={(e) => e.stopPropagation()}>
+                {/* Header */}
+                <div className="modal-header">
+                    <div className="header-title">
+                        <User size={24} />
                         <h2>Pilot Details</h2>
-                        <p><strong>Name:</strong> {pilot.name}</p>
-                        <p><strong>Email:</strong> {pilot.email}</p>
-                        <p><strong>License Number:</strong> {pilot.licenseNumber}</p>
-                        <p><strong>Verified:</strong> {pilot.isVerified}</p>
-                        {/* Add more pilot fields as needed */}
-                        <button onClick={handleVerify} style={{ marginTop: "10px" }}>
-                            Verify Pilot
-                        </button>
-                    </>
-                ) : (
-                    <p>No pilot data available.</p>
+                    </div>
+                    <button className="close-btn" onClick={onClose}>
+                        <X size={20} />
+                    </button>
+                </div>
+
+                {/* Loading State */}
+                {loading && (
+                    <div className="modal-loading">
+                        <div className="loading-spinner"></div>
+                        <p>Loading pilot details...</p>
+                    </div>
                 )}
-                <button onClick={onClose} style={{ marginTop: "10px" }}>Close</button>
+
+                {/* Error State */}
+                {error && !loading && (
+                    <div className="modal-error">
+                        <AlertCircle size={32} />
+                        <h3>Error Loading Pilot</h3>
+                        <p>{error}</p>
+                        <button className="retry-btn" onClick={() => window.location.reload()}>
+                            Try Again
+                        </button>
+                    </div>
+                )}
+
+                {/* Pilot Details */}
+                {pilot && !loading && (
+                    <div className="pilot-details">
+                        {/* Profile Section */}
+                        <div className="detail-section">
+                            <h3 className="section-title">Profile Information</h3>
+                            <div className="detail-grid">
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <User size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Full Name</label>
+                                        <p>{pilot.name || "Not provided"}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <Mail size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Email Address</label>
+                                        <p>{pilot.email}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <Building size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Department</label>
+                                        <p>{pilot.department || "Not provided"}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <IdCard size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Student ID</label>
+                                        <p>{pilot.studentID || "Not provided"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Vehicle Information */}
+                        <div className="detail-section">
+                            <h3 className="section-title">Vehicle Information</h3>
+                            <div className="detail-grid">
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <Car size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Vehicle Type</label>
+                                        <p>{pilot.vehicleType || "Not specified"}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-item">
+                                    <div className="detail-icon">
+                                        <Hash size={16} />
+                                    </div>
+                                    <div className="detail-content">
+                                        <label>Vehicle Number</label>
+                                        <p>{pilot.vehicleNumber || "Not provided"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Verification Status */}
+                        <div className="detail-section">
+                            <h3 className="section-title">Verification Status</h3>
+                            <div className="verification-info">
+                                {getStatusBadge(pilot.isVerified)}
+                                {pilot.licenseNumber && (
+                                    <div className="detail-item">
+                                        <div className="detail-icon">
+                                            <Shield size={16} />
+                                        </div>
+                                        <div className="detail-content">
+                                            <label>License Number</label>
+                                            <p>{pilot.licenseNumber}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="modal-actions">
+                            {!pilot.isVerified && (
+                                <button 
+                                    className="action-btn verify-btn"
+                                    onClick={handleVerify}
+                                    disabled={verifying}
+                                >
+                                    {verifying ? (
+                                        <div className="loading-spinner-small"></div>
+                                    ) : (
+                                        <>
+                                            <CheckCircle size={16} />
+                                            Verify Pilot
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                            <button 
+                                className="action-btn close-action-btn"
+                                onClick={onClose}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* No Data State */}
+                {!pilot && !loading && !error && (
+                    <div className="modal-empty">
+                        <User size={48} />
+                        <h3>No Pilot Data</h3>
+                        <p>No pilot information available.</p>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
 export default PilotModal;
-
