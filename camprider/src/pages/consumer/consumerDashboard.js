@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/navbar/NavBar";
 import { Bike, Car, Clock, Star, MapPin, User, Phone, Mail, BookOpen } from "lucide-react";
+import ConsumerFillInfo from "../../components/consumer/FillInfo";
 import "./style/ConsumerDashboard.css";
 
 const ConsumerDashboard = () => {
@@ -31,6 +32,10 @@ const ConsumerDashboard = () => {
                 <p>Please login to access your dashboard</p>
             </div>
         );
+    }
+
+    if (user.FormSubmitted === false){
+        return <ConsumerFillInfo/>
     }
 
     return (

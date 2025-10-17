@@ -1,4 +1,4 @@
-/* Desktop Navbar (Top) */
+/* Navbar Container */
 .navbar-top {
     display: flex;
     justify-content: space-between;
@@ -35,7 +35,7 @@
 }
 
 .navbar-logo-icon {
-    font-size: 1.2rem;
+    color: #059669;
 }
 
 .navbar-title {
@@ -83,7 +83,6 @@
 
 .navbar-btn-icon {
     flex-shrink: 0;
-    font-size: 1rem;
 }
 
 /* Special Button Styles */
@@ -156,8 +155,8 @@
 }
 
 .nav-bottom-icon {
-    font-size: 1.25rem;
     margin-bottom: 0.125rem;
+    color: currentColor;
 }
 
 .nav-bottom-text {
@@ -264,4 +263,17 @@ body {
     .page-container {
         padding-bottom: 80px;
     }
+}
+
+/* Active state for current page */
+.navbar-btn.active,
+.nav-bottom-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-weight: 600;
+}
+
+.nav-bottom-btn.active {
+    background: #059669;
+    color: white;
 }

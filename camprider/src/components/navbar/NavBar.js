@@ -1,7 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+//import StatusToggle from "../pilot/statusToggle";
 import StatusToggle from "../pilot/statusTogle";
+import { 
+    Home, 
+    User, 
+    MapPin, 
+    Shield, 
+    Bike, 
+    LogOut, 
+    Navigation 
+} from "lucide-react";
 import "./style/Navbar.css";
 
 const Navbar = () => {
@@ -22,6 +32,8 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("user");
         navigate('/');
     };
 
@@ -51,37 +63,37 @@ const Navbar = () => {
             <nav className="navbar-top">
                 <div className="navbar-brand" onClick={handleHome}>
                     <div className="navbar-logo">
-                        <span className="navbar-logo-icon">🚲</span>
+                        <Navigation className="navbar-logo-icon" size={24} />
                     </div>
                     <span className="navbar-title">CampRider</span>
                 </div>
 
                 <div className="navbar-menu-desktop">
                     <button className="navbar-btn" onClick={handleHome}>
-                        <span className="navbar-btn-icon">🏠</span>
+                        <Home className="navbar-btn-icon" size={20} />
                         <span>Home</span>
                     </button>
                     
                     <button className="navbar-btn" onClick={handleDashboard}>
-                        <span className="navbar-btn-icon">👤</span>
+                        <User className="navbar-btn-icon" size={20} />
                         <span>Profile</span>
                     </button>
                     
                     <button className="navbar-btn" onClick={handleLocations}>
-                        <span className="navbar-btn-icon">📍</span>
+                        <MapPin className="navbar-btn-icon" size={20} />
                         <span>Locations</span>
                     </button>
                     
                     {isAdmin && (
                         <button className="navbar-btn navbar-admin" onClick={() => navigate('/admin/dashboard')}>
-                            <span className="navbar-btn-icon">🛡️</span>
+                            <Shield className="navbar-btn-icon" size={20} />
                             <span>Admin</span>
                         </button>
                     )}
                     
                     {isPilot && (
                         <button className="navbar-btn navbar-pilot" onClick={() => navigate('/pilot/dashboard')}>
-                            <span className="navbar-btn-icon">🚗</span>
+                            <Bike className="navbar-btn-icon" size={20} />
                             <span>Pilot</span>
                         </button>
                     )}
@@ -94,7 +106,7 @@ const Navbar = () => {
                         </div>
                     )}
                     <button className="navbar-btn navbar-logout" onClick={handleLogout}>
-                        <span className="navbar-btn-icon">🚪</span>
+                        <LogOut className="navbar-btn-icon" size={20} />
                         <span>Logout</span>
                     </button>
                 </div>
@@ -103,30 +115,30 @@ const Navbar = () => {
             {/* Bottom Bar for Mobile */}
             <nav className="navbar-bottom">
                 <button className="nav-bottom-btn" onClick={handleHome}>
-                    <span className="nav-bottom-icon">🏠</span>
+                    <Home className="nav-bottom-icon" size={20} />
                     <span className="nav-bottom-text">Home</span>
                 </button>
                 
                 <button className="nav-bottom-btn" onClick={handleDashboard}>
-                    <span className="nav-bottom-icon">👤</span>
+                    <User className="nav-bottom-icon" size={20} />
                     <span className="nav-bottom-text">Profile</span>
                 </button>
                 
                 <button className="nav-bottom-btn" onClick={handleLocations}>
-                    <span className="nav-bottom-icon">📍</span>
+                    <MapPin className="nav-bottom-icon" size={20} />
                     <span className="nav-bottom-text">Locations</span>
                 </button>
                 
                 {isAdmin && (
                     <button className="nav-bottom-btn nav-bottom-admin" onClick={() => navigate('/admin/dashboard')}>
-                        <span className="nav-bottom-icon">🛡️</span>
+                        <Shield className="nav-bottom-icon" size={20} />
                         <span className="nav-bottom-text">Admin</span>
                     </button>
                 )}
                 
                 {isPilot && (
                     <button className="nav-bottom-btn nav-bottom-pilot" onClick={() => navigate('/pilot/dashboard')}>
-                        <span className="nav-bottom-icon">🚗</span>
+                        <Bike className="nav-bottom-icon" size={20} />
                         <span className="nav-bottom-text">Pilot</span>
                     </button>
                 )}
@@ -138,7 +150,7 @@ const Navbar = () => {
                 )}
                 
                 <button className="nav-bottom-btn nav-bottom-logout" onClick={handleLogout}>
-                    <span className="nav-bottom-icon">🚪</span>
+                    <LogOut className="nav-bottom-icon" size={20} />
                     <span className="nav-bottom-text">Logout</span>
                 </button>
             </nav>
