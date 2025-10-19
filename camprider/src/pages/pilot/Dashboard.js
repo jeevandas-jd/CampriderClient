@@ -8,7 +8,7 @@ import { io } from "socket.io-client";
 import RequestModal from "../../modal/pilot/tripRequest";
 import StatusToggle from "../../components/pilot/statusTogle";
 import "./style/PilotDashboard.css";
-
+import {getSocket} from "../../middlewares/socket";
 const PilotDashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ const PilotDashboard = () => {
     const [tripRequest, setTripRequest] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isOnline, setIsOnline] = useState(false);
-
+    const socket = getSocket();
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -25,14 +25,12 @@ const PilotDashboard = () => {
 
     useEffect(() => {
         if (user && user.FormSubmitted !== false) {
-            const socket = io("http://localhost:5001"); 
-            console.log("Connecting to server...");
+
+            console.log("socket ID:", socket);
             
-            socket.on("connect", () => {
-                console.log("Connected to server with ID:", socket.id);
-                setIsOnline(true);
-                // socket.emit("pilot-online", localStorage.getItem("userId"));
-            });
+            
+            
+
 
             socket.on("tripRequest", (data) => {
                 console.log("Received trip request:", data);
@@ -40,13 +38,10 @@ const PilotDashboard = () => {
                 setShowModal(true);
             });
 
-            socket.on("disconnect", () => {
-                console.log("Disconnected from server");
-                setIsOnline(false);
-            });
+
 
             return () => {
-                socket.disconnect();
+                //socket.disconnect();
             };
         }
     }, [user]);

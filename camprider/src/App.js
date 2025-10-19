@@ -9,7 +9,24 @@ import PilotDashboard from "./pages/pilot/Dashboard";
 import ConsumerDashboard from "./pages/consumer/consumerDashboard";
 import AdminDashBoard from "./pages/Admin/DashBoard";
 import LocationsPage from "./pages/locations";
+import { initSocket } from "./middlewares/socket";
+import { useEffect } from "react";
 function App() {
+
+  useEffect(() => {
+   const socket = initSocket();
+
+   socket.on("connect", () => {
+     console.log("Connected to socket server with ID:", socket.id);
+   });  
+
+   socket.on("disconnect", () => {
+     console.log("Disconnected from socket server");
+   });
+
+
+  }, []);
+
   return (
     <Router>
       <Routes>

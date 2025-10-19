@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { loginUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import "./style/Login.css";
-
+import { initSocket } from "../middlewares/socket";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +23,10 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
       
       if(user.role === "pilot"){ 
+       
         navigate('/pilot/dashboard', { state: { user } });
+        
+
       }
       else if(user.role === "consumer"){
         navigate('/consumer/dashboard', { state: { user } });
