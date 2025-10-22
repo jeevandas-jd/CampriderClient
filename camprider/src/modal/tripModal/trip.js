@@ -3,7 +3,8 @@ import { requestTrip } from "../../api/consumer/consumerClient";
 import { getAllLocations } from "../../api/locations/locationAxios";
 import { X, MapPin, Navigation, DollarSign, Car, AlertCircle, CheckCircle } from "lucide-react";
 import "./style/TripModal.css";
-
+import TripConsole from "../../components/trip/tripConsole";
+import { setTripInfo } from "../../middlewares/consumer/tripInfo";
 const TripModal = ({ onClose }) => {
   const FIXED_FARE = 10; // fixed fare among locations
 
@@ -15,6 +16,7 @@ const TripModal = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [response, setResponse] = useState(null);
 
   // Fetch all locations on mount
   useEffect(() => {
@@ -55,11 +57,14 @@ const TripModal = ({ onClose }) => {
     }
 
     try {
-      await requestTrip({ 
+      const data = await requestTrip({ 
         pickupLocation: formData.pickupLocation, 
         dropLocation: formData.dropoffLocation, 
         fare: FIXED_FARE 
       });
+      setTripInfo(data.data);
+      console.log("Trip requested:", data.data);
+
       setSuccess("Trip requested successfully! Finding a pilot...");
       
       // Reset form and close modal after success
@@ -67,6 +72,8 @@ const TripModal = ({ onClose }) => {
         setFormData({ pickupLocation: "", dropoffLocation: "" });
         onClose();
       }, 2000);
+
+      
       
     } catch (err) {
       setError(err.response?.data?.message || "Failed to request trip. Please try again.");
@@ -78,7 +85,10 @@ const TripModal = ({ onClose }) => {
   const isFormValid = () => {
     return formData.pickupLocation && formData.dropoffLocation && formData.pickupLocation !== formData.dropoffLocation;
   };
-
+  if (response) {
+    console.log("Rendering TripConsole with response:", response);
+    return <TripConsole tripId={response.trip.__id} pickupLocation={response.trip.pickupLocation} dropLocation={response.trip.dropLocation} fare={response.trip.fare} />;
+  }
   return (
     <div className="trip-modal-overlay" onClick={onClose}>
       <div className="trip-modal-content" onClick={(e) => e.stopPropagation()}>

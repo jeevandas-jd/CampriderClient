@@ -4,7 +4,7 @@ import Navbar from "../../components/navbar/NavBar";
 import { Bike, Car, Clock, Star, MapPin, User, Phone, Mail, BookOpen } from "lucide-react";
 import ConsumerFillInfo from "../../components/consumer/FillInfo";
 import "./style/ConsumerDashboard.css";
-
+import TripConsole from "../../components/trip/tripConsole";
 const ConsumerDashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ const ConsumerDashboard = () => {
                         <span>Consumer</span>
                     </div>
                 </header>
-
+                <TripConsole />
                 {/* Quick Stats */}
                 <div className="consumer-stats">
                     <div className="stat-card">

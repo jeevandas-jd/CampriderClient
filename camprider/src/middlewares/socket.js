@@ -18,3 +18,4 @@ export const initSocket = () => {
 };
 
 export const getSocket = () => socket;
+

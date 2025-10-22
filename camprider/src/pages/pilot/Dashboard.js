@@ -7,6 +7,7 @@ import baseURL from "../../api/baseUrl";
 import { io } from "socket.io-client";
 import RequestModal from "../../modal/pilot/tripRequest";
 import StatusToggle from "../../components/pilot/statusTogle";
+
 import "./style/PilotDashboard.css";
 import {getSocket} from "../../middlewares/socket";
 const PilotDashboard = () => {

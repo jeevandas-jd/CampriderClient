@@ -2,20 +2,13 @@ import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { X, MapPin, Navigation, DollarSign, CheckCircle, XCircle, Clock } from "lucide-react";
 import "./style/RequestModal.css";
-
+import { getSocket } from "../../middlewares/socket";
 const RequestModal = ({ tripId, pickupLocation, dropLocation, fare, onClose }) => {
-  const [socket, setSocket] = useState(null);
+  //const [socket, setSocket] = useState(null);
   const [responding, setResponding] = useState(false);
   const [responseStatus, setResponseStatus] = useState(null);
+  const socket=getSocket();
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:5001");
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
 
   const handleAccept = async () => {
     if (!socket || responding) return;
@@ -27,10 +20,12 @@ const RequestModal = ({ tripId, pickupLocation, dropLocation, fare, onClose }) =
         status: "accept",
         pilotId: localStorage.getItem("userId"),
       });
+      console.log("socket emitted ,socketid:",socket.id);
       setResponseStatus("accepted");
       
       // Auto close after successful response
       setTimeout(() => {
+        
         if (onClose) onClose();
       }, 1500);
     } catch (error) {

@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar/NavBar";
 import TripModal from "../modal/tripModal/trip";
 import "./style/Home.css";
-
+import { getTripInfo } from "../middlewares/consumer/tripInfo";
+import TripConsole from "../components/trip/tripConsole";
 const Home = () => {
   const [role] = useState(localStorage.getItem("role"));
   const [isAuthenticated] = useState(!!localStorage.getItem("token"));
   const [showTripModal, setShowTripModal] = useState(false);
   const navigate = useNavigate();
-
+  const tripData = getTripInfo()?.trip
   const handleOpenTripModal = () => setShowTripModal(true);
   const handleCloseTripModal = () => setShowTripModal(false);
 
@@ -39,12 +40,33 @@ const Home = () => {
             </div>
           ) : (
             role === "consumer" && (
-              <button
-                className="home-btn home-btn-trip"
-                onClick={handleOpenTripModal}
-              >
-                Make A Trip
-              </button>
+              // START FIX: Wrap the two sibling components in a React Fragment
+              <>
+                {/* 1. Make A Trip Button */}
+                {!tripData && ( // Only show Make A Trip button if no active trip
+                    <button
+                        className="home-btn home-btn-trip"
+                        onClick={handleOpenTripModal}
+                    >
+                        Make A Trip
+                    </button>
+                )}
+                
+                {/* 2. Trip Console */}
+                {/* NOTE: You should pass tripData._id, which is the MongoDB ID, 
+                   but the trip object also contains 'tripId' which is likely your formatted ID */}
+                {tripData && (
+                    <TripConsole 
+                        tripId={tripData.tripId} 
+                        pickupLocation={tripData.pickupLocation} 
+                        dropLocation={tripData.dropLocation} 
+                        fare={tripData.fare}
+                        status={tripData.status}
+                        pioltId={tripData.pioltId} // Pass status for correct display
+                    />
+                )}
+              </>
+              // END FIX
             )
           )}
         </div>
