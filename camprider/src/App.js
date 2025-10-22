@@ -1,45 +1,42 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Home from "./pages/Home";
-import PilotDashboard from "./pages/pilot/Dashboard";
-import ConsumerDashboard from "./pages/consumer/consumerDashboard";
-import AdminDashBoard from "./pages/Admin/DashBoard";
-import LocationsPage from "./pages/locations";
-import { initSocket } from "./middlewares/socket";
-import { useEffect } from "react";
+
+import PilotApp from "./Apps/PilotApp";
+import ConsumerApp from "./Apps/ConsumerApp";
+import AdminApp from "./Apps/AdminApp";
+
 function App() {
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-   const socket = initSocket();
-
-   socket.on("connect", () => {
-     console.log("Connected to socket server with ID:", socket.id);
-   });  
-
-   socket.on("disconnect", () => {
-     console.log("Disconnected from socket server");
-   });
-
-
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
   }, []);
+if(user){
+  console.log("Logged in user:", user);
+}
+  // Determine user role
+  if (user?.role === "pilot") return <PilotApp />;
+  if (user?.role === "consumer") return <ConsumerApp />;
+  if (user?.role === "admin") return <AdminApp />;
 
+  // Default (when not logged in)
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home/>}/>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/pilot/dashboard" element={<PilotDashboard />} />
-        <Route path="/consumer/dashboard" element={<ConsumerDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );

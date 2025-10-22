@@ -12,3 +12,5 @@ CONSUMER_API.interceptors.request.use((config) => {
 export const fillInfo = (consumerData) => CONSUMER_API.post('/fillInfo', consumerData);
 
 export const requestTrip = (tripData) => CONSUMER_API.post('/tripRequest', tripData);
+
+export const getTripInfo = () => CONSUMER_API.get('/getTripDetailsPassenger');

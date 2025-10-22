@@ -9,7 +9,12 @@ const RequestModal = ({ tripId, pickupLocation, dropLocation, fare, onClose }) =
   const [responseStatus, setResponseStatus] = useState(null);
   const socket=getSocket();
 
-
+  const [tripData, setTripData] = useState({
+    tripId: tripId,
+    pickupLocation: pickupLocation,
+    dropLocation: dropLocation,
+    fare: fare,
+  });
   const handleAccept = async () => {
     if (!socket || responding) return;
     
